@@ -18,7 +18,7 @@ class Roll
   end
   def var
     e = self.exp
-    @res.reduce(0){|a,n|a + (n - e) ** 2}
+    @res.reduce(0){|a,n|a + (n - e) ** 2}/self.res.size
   end
   def map
     Roll.new(@res.flat_map{|r| (yield r).res})
@@ -36,7 +36,7 @@ class Roll
     self.bimap other, &:*
   end
   def / other
-    self.bimap(other){|r, l| (r + 1) / l }
+    self.bimap(other){|r, l| (r + l - 1) / l }
   end
   def D other
     self.bimap(other){|r,l|
@@ -69,6 +69,9 @@ class Roll
   end
   def == other
     @res.sort == other.res.sort
+  end
+  def to_s
+    "#{@res.sort} E:#{self.exp.to_f.round(2)} V:#{self.var.to_f.round(2)}"
   end
 end
 
@@ -216,6 +219,8 @@ def getRoll str
   evaluate(paser(tokenizer(str)))
 end
 
+if __FILE__ == $0
+
 require "minitest/autorun"
 
 class TestRoll < MiniTest::Unit::TestCase
@@ -260,7 +265,7 @@ class TestRoll < MiniTest::Unit::TestCase
     assert_equal Roll[1,2] + Roll[2,3], Roll[3,4,4,5]
   end
   def test_roll_div
-    assert_equal Roll[1,2,3,4] / Roll[2], Roll[1,1,2,2]
+    assert_equal Roll[1,2,3,4,5,6] / Roll[3], Roll[1,1,1,2,2,2]
   end
   def test_roller
     assert_equal Roll[1,2].D(Roll[2]), Roll[1,2,2,3,3,4]
@@ -274,7 +279,7 @@ class TestRoll < MiniTest::Unit::TestCase
     assert_equal Roll[1].D(Roll[6]).exp, 3.5r
   end
   def test_var
-    assert_equal Roll[1].D(Roll[6]).var, 35/2r
+    assert_equal Roll[1].D(Roll[6]).var, 35/12r
   end
   def test_getRoll
     assert_equal getRoll("D"), Roll[1,2,3,4,5,6]
@@ -297,4 +302,5 @@ class TestRoll < MiniTest::Unit::TestCase
   def test_stepc
     assert_equal getRoll("stepc(D3,2,3)"), Roll[0,0,0,0,1,1,1,1,2]
   end
+end
 end
