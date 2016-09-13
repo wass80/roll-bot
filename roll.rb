@@ -70,8 +70,11 @@ class Roll
   def == other
     @res.sort == other.res.sort
   end
+  def to_a
+    @res.reduce(Array.new(@res.max+1){0}){|a,n| a[n] += 1; a}
+  end
   def to_s
-    "#{@res.sort} E:#{self.exp.to_f.round(2)} V:#{self.var.to_f.round(2)}"
+    "E:#{self.exp.to_f.round(2)} V:#{self.var.to_f.round(2)} #{self.to_a}"
   end
 end
 
@@ -269,6 +272,9 @@ class TestRoll < MiniTest::Unit::TestCase
   end
   def test_roller
     assert_equal Roll[1,2].D(Roll[2]), Roll[1,2,2,3,3,4]
+  end
+  def test_array
+    assert_equal Roll[1,1,2,2,4].to_a, [0,2,2,0,1]
   end
   def test_roll
     10.times{

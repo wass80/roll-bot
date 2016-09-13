@@ -42,7 +42,7 @@ Thread.abort_on_exception=true
 
 client.on :message do |data|
   validMsg(data, channelID) do |name, text, data|
-    begin;Timeout.timeout(3){
+    begin;Timeout.timeout(5){
       begin
         if m = text.match(/roll\s+(.+)/)
           r = m[1]
@@ -52,9 +52,9 @@ client.on :message do |data|
             postTo "#{r} => #{getRoll(r)}", channelID
         end
       rescue => e
-        puts e
+        postTo "#{r} => わかんない", channelID
       end
-    };rescue;puts "timeout";end
+    };rescue; postTo "#{text} => そんなにふれないよ", channelID ;end
   end
 end
 
